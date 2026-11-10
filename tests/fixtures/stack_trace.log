@@ -1,0 +1,9 @@
+
+2026-11-10T09:30:01Z Starting test execution
+Traceback (most recent call last):
+  File "/app/tests/test_payment.py", line 42, in test_total
+    assert calculate_total(90) == 100
+  File "/app/src/payment.py", line 18, in calculate_total
+    return amount
+AssertionError: expected 100, got 90
+Build failed.

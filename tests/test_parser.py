@@ -74,3 +74,28 @@ def test_generic_timeout_is_timeout():
 
     assert len(failures) == 1
     assert failures[0].category == "TIMEOUT"
+
+
+def test_parser_preserves_stack_trace_context():
+    log = (
+        "Starting test execution\n"
+        "Traceback (most recent call last):\n"
+        '  File "/app/tests/test_payment.py", line 42, in test_total\n'
+        "    assert calculate_total(90) == 100\n"
+        '  File "/app/src/payment.py", line 18, in calculate_total\n'
+        "    return amount\n"
+        "AssertionError: expected 100, got 90\n"
+        "Build failed.\n"
+    )
+
+    failures = parse_log(log)
+
+    assert len(failures) == 1
+
+    failure = failures[0]
+
+    assert failure.category == "TEST_FAILURE"
+    assert failure.line_number == 7
+    assert "test_payment.py" in failure.message
+    assert "payment.py" in failure.message
+    assert "AssertionError" in failure.message

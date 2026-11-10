@@ -65,6 +65,77 @@ def test_group_failures_counts_occurrences():
     assert repeated[0].occurrences == 2
     assert repeated[0].first_seen_line == 3
 
-
 def test_empty_events_return_no_groups():
     assert group_failures([]) == []
+
+def test_stack_trace_fingerprint_ignores_absolute_paths():
+    first = FailureEvent(
+        8,
+        "TEST_FAILURE",
+        'Traceback (most recent call last):\n'
+        '  File "/app/src/payment.py", line 18, in calculate_total\n'
+        'AssertionError: expected 100, got 90',
+    )
+
+    second = FailureEvent(
+        12,
+        "TEST_FAILURE",
+        'Traceback (most recent call last):\n'
+        '  File "/build/agent-42/src/payment.py", line 23, in calculate_total\n'
+        'AssertionError: expected 100, got 90',
+    )
+
+    assert fingerprint_event(first) == fingerprint_event(second)
+
+def test_stack_trace_fingerprint_preserves_function_names():
+    first = FailureEvent(
+        8,
+        "TEST_FAILURE",
+        'File "/app/src/payment.py", line 18, in calculate_total\n'
+        'AssertionError: expected 100, got 90',
+    )
+
+    second = FailureEvent(
+        8,
+        "TEST_FAILURE",
+        'File "/app/src/payment.py", line 18, in calculate_discount\n'
+        'AssertionError: expected 100, got 90',
+    )
+
+    assert fingerprint_event(first) != fingerprint_event(second)
+
+
+def test_stack_trace_fingerprint_ignores_build_paths_and_line_numbers():
+    first = FailureEvent(
+        8,
+        "TEST_FAILURE",
+        'File "/app/src/payment.py", line 18, in calculate_total\n'
+        "AssertionError: expected 100, got 90",
+    )
+
+    second = FailureEvent(
+        12,
+        "TEST_FAILURE",
+        'File "/build/agent-42/src/payment.py", line 23, in calculate_total\n'
+        "AssertionError: expected 100, got 90",
+    )
+
+    assert fingerprint_event(first) == fingerprint_event(second)
+
+
+def test_stack_trace_fingerprint_preserves_function_names():
+    first = FailureEvent(
+        8,
+        "TEST_FAILURE",
+        'File "/app/src/payment.py", line 18, in calculate_total\n'
+        "AssertionError: expected 100, got 90",
+    )
+
+    second = FailureEvent(
+        8,
+        "TEST_FAILURE",
+        'File "/app/src/payment.py", line 18, in calculate_discount\n'
+        "AssertionError: expected 100, got 90",
+    )
+
+    assert fingerprint_event(first) != fingerprint_event(second)

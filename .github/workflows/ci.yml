@@ -1,0 +1,52 @@
+
+name: CI Failure Intelligence
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run tests and capture output
+        shell: bash
+        run: |
+          set +e
+          pytest -v 2>&1 | tee ci.log
+          test_status=${PIPESTATUS[0]}
+          set -e
+
+          ci-inspect ci.log \
+            --format markdown \
+            --output ci-report.md
+
+          cat ci-report.md
+          exit "$test_status"
+
+      - name: Upload CI analysis report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-report
+          path: ci-report.md
+          if-no-files-found: ignore

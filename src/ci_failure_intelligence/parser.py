@@ -45,14 +45,15 @@ FAILURE_PATTERNS = [
     ),
 ]
 
-
 def parse_log(log_content: str) -> list[FailureEvent]:
     """
-    Extract recognizable failure events from a CI log.
+    Extract recognizable failures from a CI log.
 
-    Returns one event for each matching log line.
+    Retains traceback context and creates one event
+    for each recognized failure.
     """
     failures = []
+    traceback_lines = []
 
     for line_number, line in enumerate(
         log_content.splitlines(), start=1
@@ -62,15 +63,41 @@ def parse_log(log_content: str) -> list[FailureEvent]:
         if not stripped_line:
             continue
 
+        if stripped_line.startswith(
+            "Traceback (most recent call last):"
+        ):
+            traceback_lines = [stripped_line]
+            continue
+
+        matched_category = None
+
         for category, pattern in FAILURE_PATTERNS:
             if pattern.search(stripped_line):
+                matched_category = category
+                break
+
+        if traceback_lines:
+            traceback_lines.append(stripped_line)
+
+            if matched_category:
                 failures.append(
                     FailureEvent(
                         line_number=line_number,
-                        category=category,
-                        message=stripped_line,
+                        category=matched_category,
+                        message="\n".join(traceback_lines),
                     )
                 )
-                break
+                traceback_lines = []
+
+            continue
+
+        if matched_category:
+            failures.append(
+                FailureEvent(
+                    line_number=line_number,
+                    category=matched_category,
+                    message=stripped_line,
+                )
+            )
 
     return failures
