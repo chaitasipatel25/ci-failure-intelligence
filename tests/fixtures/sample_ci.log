@@ -1,0 +1,11 @@
+2026-11-10T09:30:01Z Starting test execution
+2026-11-10T09:30:05Z Running tests/test_payment.py
+FAILED tests/test_payment.py::test_total - AssertionError: expected 100, got 90
+
+Installing dependencies...
+ModuleNotFoundError: No module named 'requests'
+
+Starting integration tests...
+psycopg.OperationalError: connection timed out
+
+Build failed.
