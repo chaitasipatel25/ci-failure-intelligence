@@ -43,6 +43,14 @@ jobs:
           cat ci-report.md
           exit "$test_status"
 
+      - name: Validate failure analysis
+        run: |
+          ci-inspect tests/fixtures/repeated_failures.log \
+            --format markdown \
+            --output fixture-report.md
+
+          cat fixture-report.md
+          
       - name: Upload CI analysis report
         if: always()
         uses: actions/upload-artifact@v4
