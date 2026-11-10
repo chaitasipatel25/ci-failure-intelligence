@@ -1,5 +1,5 @@
 # CI Failure Intelligence
-
+[![CI](https://github.com/chaitasipatel25/ci-failure-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/chaitasipatel25/ci-failure-intelligence/actions)
 A lightweight CI failure analysis tool that turns noisy build logs into structured, actionable failure reports.
 
 CI pipelines produce large volumes of logs, making it difficult for developers to identify recurring failures, distinguish infrastructure problems from test failures, and understand what needs attention.
@@ -103,7 +103,7 @@ First seen: line 9
 
 ## Installation
 
-Requires Python 3.12 or newer.
+Requires Python 3.11 or newer.
 
 ```bash
 git clone https://github.com/chaitasipatel25/ci-failure-intelligence

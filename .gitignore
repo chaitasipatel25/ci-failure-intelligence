@@ -7,3 +7,8 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+report.json
+report.md
+ci.log
+ci-report.md
+fixture-report.md
